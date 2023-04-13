@@ -3,3 +3,35 @@ GET http://localhost:3000/test
 
 ###
 GET http://localhost:3000/api/users
+
+###
+GET http://localhost:3000/api/users/1
+
+###
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "name": "test",
+  "email": "test",
+  "password": "test"
+}
+
+###
+PATCH http://localhost:3000/api/users/1
+Content-Type: application/json
+
+{
+  "task": "Newest task name"
+}
+
+###
+PUT http://localhost:3000/api/users/1
+Content-Type: application/json
+
+{
+  "task": "New task"
+}
+
+###
+DELETE http://localhost:3000/api/users/1

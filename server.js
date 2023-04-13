@@ -40,6 +40,23 @@ app.get("/api/users/:id", (req, res) => {
   });
 });
 
+// Post route handler to the database
+app.post("/api/users", (req, res) => {
+  const { name, email, password } = req.body;
+  pool.query(
+    "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
+    [name, email, password],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal server error" });
+      } else {
+        res.status(201).json(result.rows[0]);
+      }
+    }
+  );
+});
+
 app.listen(PORT, () => {
   console.log("Server is listening on port 3000...");
 });

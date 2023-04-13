@@ -57,6 +57,25 @@ app.post("/api/users", (req, res) => {
   );
 });
 
+// Patch route handler to edit a specific row in the database
+app.patch("/api/users/:id", (req, res) => {
+  const userId = req.params.id;
+  const { name, email, password } = req.body;
+  const query =
+    "UPDATE users SET name = COALESCE($1, name), email = COALESCE($2, email), password = COALESCE($3, password) WHERE id = $4 RETURNING *";
+  const values = [name || null, email || null, password || null, userId];
+  pool.query(query, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    } else if (result.rowCount === 0) {
+      res.status(404).send(`User with ID ${userId} not found`);
+    } else {
+      res.status(200).json(result.rows[0]);
+    }
+  });
+});
+
 app.listen(PORT, () => {
   console.log("Server is listening on port 3000...");
 });

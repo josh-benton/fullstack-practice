@@ -57,7 +57,7 @@ app.post("/api/users", (req, res) => {
   );
 });
 
-// Patch route handler to edit a specific row in the database
+// Patch route handler to edit a specific item or items on a specific row in the database
 app.patch("/api/users/:id", (req, res) => {
   const userId = req.params.id;
   const { name, email, password } = req.body;
@@ -72,6 +72,40 @@ app.patch("/api/users/:id", (req, res) => {
       res.status(404).send(`User with ID ${userId} not found`);
     } else {
       res.status(200).json(result.rows[0]);
+    }
+  });
+});
+
+// Put request handler to update full row of database
+app.put("/api/users/:id", (req, res) => {
+  const userId = req.params.id;
+  const { name, email, password } = req.body;
+  const query =
+    "UPDATE users SET name = $1, email = $2, password = $3 WHERE id = $4 RETURNING *";
+  const values = [name, email, password, userId];
+  pool.query(query, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    } else if (result.rowCount === 0) {
+      res.status(404).send(`User with ID ${userId} not found`);
+    } else {
+      res.status(200).json(result.rows[0]);
+    }
+  });
+});
+
+// Delete request handler to delete a specific row in the database
+app.delete("/api/users/:id", (req, res) => {
+  const userId = req.params.id;
+  pool.query("DELETE FROM users WHERE id = $1", [userId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Internal server error");
+    } else if (result.rowCount === 0) {
+      res.status(404).send(`User with ID ${userId} not found`);
+    } else {
+      res.status(204).send(`Task was successfully deleted`);
     }
   });
 });
